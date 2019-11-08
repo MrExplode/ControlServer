@@ -28,6 +28,7 @@ public class Main {
     
     private String ip = "127.0.0.1";
     private int port = 42069;
+    private SerialPort serialPort;
     @SuppressWarnings("unused")
     private static String controllerName = "Generic   USB  Joystick";
     
@@ -46,18 +47,53 @@ public class Main {
     }
     
     public void runSerial() {
-        
+        long timer = 0;
+        long statTimer = 0;
+        if (server) {
+            ArrayList<Controller> gameControllers = (ArrayList<Controller>) Arrays.asList(ControllerEnvironment.getDefaultEnvironment().getControllers())
+                    .stream().filter(x -> (x.getType() == Controller.Type.GAMEPAD) || x.getType() == Controller.Type.WHEEL || x.getType() == Controller.Type.STICK).collect(Collectors.toList());
+            Controller controller = gameControllers.get(0);
+            Component comp1 = controller.getComponent(Identifier.Axis.X);
+            Component comp2 = controller.getComponent(Identifier.Axis.RZ);
+            
+            this.serialPort = SerialPort.getCommPort("todo");
+            this.serialPort.openPort();
+            Runtime.getRuntime().addShutdownHook(new Thread(()->serialPort.closePort()));
+            while (true) {
+                if (System.currentTimeMillis() - timer > 50) {
+                    timer = System.currentTimeMillis();
+                    
+                    if (!controller.poll()) {
+                        System.out.println("Controller disconnected!\nStopping...");
+                        break;
+                    }
+                    
+                    this.turn = comp1.getPollData();
+                    this.throttle = comp2.getPollData();
+                    
+                    serialWrite(float2byteArray(turn, throttle));
+                }
+                
+                //statistics
+                if (System.currentTimeMillis() - statTimer > 1000) {
+                    statTimer = System.currentTimeMillis();
+                    System.out.println("Sent data to [" + serialPort.getPortDescription() + "]: turn=" + turn + " throttle=" + throttle);
+                }
+            }
+            serialPort.closePort();
+        } else {
+            throw new UnsupportedOperationException("Client mode is not supported in Serial mode!");
+        }
     }
 
     public void runUDP() {
         try {
-            ArrayList<Controller> gameControllers = (ArrayList<Controller>) Arrays.asList(ControllerEnvironment.getDefaultEnvironment().getControllers())
-                                                    .stream().filter(x -> (x.getType() == Controller.Type.GAMEPAD) || x.getType() == Controller.Type.WHEEL || x.getType() == Controller.Type.STICK).collect(Collectors.toList());
-            
             DatagramSocket socket = new DatagramSocket((server ? port -1 : port));
             long timer = 0;
             long statTimer = 0;
             if (server) {
+                ArrayList<Controller> gameControllers = (ArrayList<Controller>) Arrays.asList(ControllerEnvironment.getDefaultEnvironment().getControllers())
+                        .stream().filter(x -> (x.getType() == Controller.Type.GAMEPAD) || x.getType() == Controller.Type.WHEEL || x.getType() == Controller.Type.STICK).collect(Collectors.toList());
                 Controller controller = gameControllers.get(0);
                 Component comp1 = controller.getComponent(Identifier.Axis.X);
                 Component comp2 = controller.getComponent(Identifier.Axis.RZ);
@@ -103,6 +139,11 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void serialWrite(byte[] data) {
+        this.serialPort.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0);
+        this.serialPort.writeBytes(buffer, buffer.length);
     }
     
     private static byte[] float2byteArray(float... args) {
