@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import com.fazecast.jSerialComm.SerialPort;
+
 import me.mrexplode.consolestarter.ConsoleStarter;
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
@@ -26,6 +28,7 @@ public class Main {
     
     private String ip = "127.0.0.1";
     private int port = 42069;
+    @SuppressWarnings("unused")
     private static String controllerName = "Generic   USB  Joystick";
     
     
@@ -33,7 +36,7 @@ public class Main {
         new ConsoleStarter("ControlServer", "server", "127.0.0.1", "42069").start();
         System.out.println("Starting up ControlServer...");
         //loadLibraries("D:\\pjano\\Documents\\Eclipse\\git\\lib", ".dll");
-        new Main(args[0].equals("server"), args[1], Integer.valueOf(args[2])).run();
+        new Main(args[0].equals("server"), args[1], Integer.valueOf(args[2])).runUDP();
     }
     
     public Main(boolean server, String ip, int port) {
@@ -41,8 +44,12 @@ public class Main {
         this.ip = ip;
         this.port = port;
     }
+    
+    public void runSerial() {
+        
+    }
 
-    private void run() {
+    public void runUDP() {
         try {
             ArrayList<Controller> gameControllers = (ArrayList<Controller>) Arrays.asList(ControllerEnvironment.getDefaultEnvironment().getControllers())
                                                     .stream().filter(x -> (x.getType() == Controller.Type.GAMEPAD) || x.getType() == Controller.Type.WHEEL || x.getType() == Controller.Type.STICK).collect(Collectors.toList());

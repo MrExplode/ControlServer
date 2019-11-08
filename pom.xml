@@ -11,11 +11,13 @@
     <maven.compiler.target>8</maven.compiler.target>
   </properties>
   <dependencies>
+    <!-- ConsoleStarter -->
     <dependency>
       <groupId>me.mrexplode</groupId>
       <artifactId>consolestarter</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
+    <!-- JInput -->
     <dependency>
       <groupId>net.java.jinput</groupId>
       <artifactId>jinput</artifactId>
@@ -26,7 +28,13 @@
       <artifactId>jinput</artifactId>
       <version>2.0.9</version>
       <classifier>natives-all</classifier>
-      </dependency>
+    </dependency>
+    <!-- jSerialComm -->
+    <dependency>
+      <groupId>com.fazecast</groupId>
+      <artifactId>jSerialComm</artifactId>
+      <version>2.5.2</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>${project.artifactId}-${project.version}</finalName>
