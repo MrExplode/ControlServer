@@ -34,10 +34,18 @@ public class Main {
     
     
     public static void main(String[] args) {
-        new ConsoleStarter("ControlServer", "server", "127.0.0.1", "42069").start();
+        new ConsoleStarter("ControlServer", "serial", "server", "127.0.0.1", "42069").start();
         System.out.println("Starting up ControlServer...");
+        System.out.println("Mode: " + args[1]);
+        System.out.println("Communication protocol: " + args[0]);
+        System.out.println("target ip: " + args[2]);
+        System.out.println("Target port: " + args[3]);
         //loadLibraries("D:\\pjano\\Documents\\Eclipse\\git\\lib", ".dll");
-        new Main(args[0].equals("server"), args[1], Integer.valueOf(args[2])).runUDP();
+        if (args[0].equals("serial")) {
+            new Main(args[1].equals("server"), args[2], Integer.valueOf(args[3])).runSerial();
+        } else {
+            new Main(args[1].equals("server"), args[2], Integer.valueOf(args[3])).runUDP();
+        }
     }
     
     public Main(boolean server, String ip, int port) {
