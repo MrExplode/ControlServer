@@ -32,9 +32,20 @@ public class Main {
     @SuppressWarnings("unused")
     private static String controllerName = "Generic   USB  Joystick";
     
-    
     public static void main(String[] args) {
-        new ConsoleStarter("ControlServer", "serial", "server", "127.0.0.1", "42069").start();
+        byte[] array = float2byteArray(11.6f);
+        for (int i = 0; i < array.length; i++) {
+            System.out.print(array[i] + " ");
+        }
+        
+        byte[] array2 = floatToByteArray(11.6f);
+        System.out.println();
+        for (int i = 0; i < array2.length; i++) {
+            System.out.print(array2[i] + " ");
+        }
+        System.out.println("\n" + Float.floatToIntBits(0.5f) + "\n" + Float.floatToRawIntBits(0.5f));
+        /*
+        new ConsoleStarter("ControlServer", new String[] {"-Djava.library.path=\"PATH\""}, "serial", "server", "127.0.0.1", "42069").start();
         System.out.println("Starting up ControlServer...");
         System.out.println("Mode: " + args[1]);
         System.out.println("Communication protocol: " + args[0]);
@@ -45,7 +56,12 @@ public class Main {
             new Main(args[1].equals("server"), args[2], Integer.valueOf(args[3])).runSerial();
         } else {
             new Main(args[1].equals("server"), args[2], Integer.valueOf(args[3])).runUDP();
-        }
+        }*/
+    }
+    public static byte[] floatToByteArray(float value) {
+        int intBits =  Float.floatToIntBits(value);
+        return new byte[] {
+          (byte) (intBits >> 24), (byte) (intBits >> 16), (byte) (intBits >> 8), (byte) (intBits) };
     }
     
     public Main(boolean server, String ip, int port) {
