@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import org.apache.commons.codec.binary.Hex;
+
 import com.fazecast.jSerialComm.SerialPort;
 
 import me.mrexplode.consolestarter.ConsoleStarter;
@@ -37,13 +39,6 @@ public class Main {
         for (int i = 0; i < array.length; i++) {
             System.out.print(array[i] + " ");
         }
-        
-        byte[] array2 = floatToByteArray(11.6f);
-        System.out.println();
-        for (int i = 0; i < array2.length; i++) {
-            System.out.print(array2[i] + " ");
-        }
-        System.out.println("\n" + Float.floatToIntBits(0.5f) + "\n" + Float.floatToRawIntBits(0.5f));
         /*
         new ConsoleStarter("ControlServer", new String[] {"-Djava.library.path=\"PATH\""}, "serial", "server", "127.0.0.1", "42069").start();
         System.out.println("Starting up ControlServer...");
@@ -78,7 +73,7 @@ public class Main {
                     .stream().filter(x -> (x.getType() == Controller.Type.GAMEPAD) || x.getType() == Controller.Type.WHEEL || x.getType() == Controller.Type.STICK).collect(Collectors.toList());
             Controller controller = gameControllers.get(0);
             Component comp1 = controller.getComponent(Identifier.Axis.X);
-            Component comp2 = controller.getComponent(Identifier.Axis.RZ);
+            Component comp2 = controller.getComponent(Identifier.Axis.Z);
             
             this.serialPort = SerialPort.getCommPort("todo");
             this.serialPort.openPort();
@@ -120,7 +115,7 @@ public class Main {
                         .stream().filter(x -> (x.getType() == Controller.Type.GAMEPAD) || x.getType() == Controller.Type.WHEEL || x.getType() == Controller.Type.STICK).collect(Collectors.toList());
                 Controller controller = gameControllers.get(0);
                 Component comp1 = controller.getComponent(Identifier.Axis.X);
-                Component comp2 = controller.getComponent(Identifier.Axis.RZ);
+                Component comp2 = controller.getComponent(Identifier.Axis.Z);
                 
                 while (true) {
                   //25ms sending time
