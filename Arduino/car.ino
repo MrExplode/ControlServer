@@ -2,33 +2,57 @@
 #include <WiFiUdp.h>
 #include <Ethernet.h>
 
+union floatData {
+  float value;
+  byte bytes[4];
+};
+
+//############################
+// Mode switches
+// Comment out to toggle them
 #define UDP
 //#define SERIAL
-
-#define float_to_int(f) (*reinterpret_cast<const int*>(&static_cast<const float&>(f)))
+#define SENSORS
+//############################
 
 #ifdef UDP
 //wifi and ethernet settings
 char ssid[] = "network";
 char password[] = "pwd";
 IPAddress ip(192, 168, 1, 177);
-int port = 69420;
+int port = 42069;
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 int status = WL_IDLE_STATUS;
 WiFiUDP udpHandler;
 #endif
 
-int okLED = -1;
-int warnLED = -1;
-int errLED = -1;
+byte buffer[64];
+
+const int okLED = -1;
+const int warnLED = -1;
+const int errLED = -1;
+
+#ifdef SENSORS
+//minimum values for obstacle avoiding
+const float minFrontDist = 10.0f;
+const float minLeftDist = 10.0f;
+const float minRightDist = 10.0f;
+
+//Center ultrasonic sensor
+const int uss1Trig = -1;
+const int uss1Echo = -1;
+//Left ultrasonic sensor
+const int uss2Trig = -1;
+const int uss2Echo = -1;
+//right ultrasonic sensor
+const int uss3Trig = -1;
+const int uss3Echo = -1;
+#endif
 
 unsigned long timer = 0;
 
 void setup() {
-  pinMode(okLED, OUTPUT);
-  pinMode(warnLED, OUTPUT);
-  pinMode(errLED, OUTPUT);
-  
+  setPinModes();
   #ifdef SERIAL
   //usb
   Serial.begin(9600);
@@ -38,6 +62,7 @@ void setup() {
   #ifdef UDP
   //wifi
   if (WiFi.status() == WL_NO_SHIELD) {
+    //questionable
     Serial.println("WiFi shield not present");
     // don't continue:
     while (true);
@@ -48,6 +73,8 @@ void setup() {
 }
 
 void loop() {
+    float turn = 0.0f;
+    float throttle = 0.0f;
     #ifdef SERIAL
     #endif
 
@@ -57,9 +84,51 @@ void loop() {
     if (packetSize > 0) {
       unsigned long interval = millis() - timer;
       connectionLED(interval);
-      
+      //TODO other stuff like checks
+      udpHandler.read(buffer, sizeof(buffer));
+
+      floatData turnData;
+      memcpy(turnData.bytes, buffer, 4);
+      floatData throttleData;
+      memcpy(throttleData.bytes, buffer + 4, 4);
+      turn = turnData.value;
+      throttle = throttleData.value;
     }
     #endif
+
+    #ifdef SENSORS
+      //polling ultrasonic sensors   referece -> https://howtomechatronics.com/tutorials/arduino/ultrasonic-sensor-hc-sr04/
+      digitalWrite(uss1Trig, LOW);
+      digitalWrite(uss2Trig, LOW);
+      digitalWrite(uss3Trig, LOW);
+      delayMicroseconds(2);
+
+      digitalWrite(uss1Trig, HIGH);
+      digitalWrite(uss2Trig, HIGH);
+      digitalWrite(uss3Trig, HIGH);
+      delayMicroseconds(10);
+      digitalWrite(uss1Trig, LOW);
+      digitalWrite(uss2Trig, LOW);
+      digitalWrite(uss3Trig, LOW);
+
+      float frontDistance = pulseIn(uss1Echo, HIGH)*0.034/2;
+      float leftDistance = pulseIn(uss2Echo, HIGH)*0.34/2;
+      float rightDistance = pulseIn(uss3Echo, HIGH)*0.34/2;
+
+      if (frontDistance <= minFrontDist) {
+        //stop
+        throttle = 0.0f;
+      }
+
+      if (leftDistance <= minLeftDist) {
+        //right turn
+        turn = 1.0f;
+      }
+
+      if (rightDistance <= minRightDist) {
+        turn = -1.0f;
+      }
+      #endif
 }
 
 void connectionLED(unsigned long interval) {
@@ -78,7 +147,18 @@ void connectionLED(unsigned long interval) {
   }
 }
 
-void pack(byte dest[], float val) {
-  int a = *(int*)&val;
-  byte curr[4] = {(a >> 24) & 0xFF, (a >> 16) & 0xFF, (a >> 8) & 0xFF, (a)};
+void setPinModes() {
+  pinMode(okLED, OUTPUT);
+  pinMode(warnLED, OUTPUT);
+  pinMode(errLED, OUTPUT);
+
+  #ifdef SENSORS
+  pinMode(uss1Trig, OUTPUT);
+  pinMode(uss2Trig, OUTPUT);
+  pinMode(uss3Trig, OUTPUT);
+  
+  pinMode(uss1Echo, INPUT);
+  pinMode(uss2Echo, INPUT);
+  pinMode(uss3Echo, INPUT);
+  #endif
 }
