@@ -39,13 +39,11 @@ const float minLeftDist = 10.0f;
 const float minRightDist = 10.0f;
 
 //Center ultrasonic sensor
-const int uss1Trig = -1;
+const int ussTrig = -1;
 const int uss1Echo = -1;
 //Left ultrasonic sensor
-const int uss2Trig = -1;
 const int uss2Echo = -1;
 //right ultrasonic sensor
-const int uss3Trig = -1;
 const int uss3Echo = -1;
 #endif
 
@@ -98,18 +96,12 @@ void loop() {
 
     #ifdef SENSORS
       //polling ultrasonic sensors   referece -> https://howtomechatronics.com/tutorials/arduino/ultrasonic-sensor-hc-sr04/
-      digitalWrite(uss1Trig, LOW);
-      digitalWrite(uss2Trig, LOW);
-      digitalWrite(uss3Trig, LOW);
+      digitalWrite(ussTrig, LOW);
       delayMicroseconds(2);
 
-      digitalWrite(uss1Trig, HIGH);
-      digitalWrite(uss2Trig, HIGH);
-      digitalWrite(uss3Trig, HIGH);
+      digitalWrite(ussTrig, HIGH);
       delayMicroseconds(10);
-      digitalWrite(uss1Trig, LOW);
-      digitalWrite(uss2Trig, LOW);
-      digitalWrite(uss3Trig, LOW);
+      digitalWrite(ussTrig, LOW);
 
       float frontDistance = pulseIn(uss1Echo, HIGH)*0.034/2;
       float leftDistance = pulseIn(uss2Echo, HIGH)*0.34/2;
@@ -153,9 +145,7 @@ void setPinModes() {
   pinMode(errLED, OUTPUT);
 
   #ifdef SENSORS
-  pinMode(uss1Trig, OUTPUT);
-  pinMode(uss2Trig, OUTPUT);
-  pinMode(uss3Trig, OUTPUT);
+  pinMode(ussTrig, OUTPUT);
   
   pinMode(uss1Echo, INPUT);
   pinMode(uss2Echo, INPUT);
