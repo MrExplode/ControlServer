@@ -1,0 +1,11 @@
+hc-sr04 ultrasonic sensor 3x (kb 1500 ft összesen)
+esp8266 wifi module (max 1500, alverziót még kell keresni, nem mindegy)
+L298N driver (kb 800ft)
+servo
+1: https://hobbyking.com/en_us/hxt500-micro-servo-0-6kg-0-08sec-6-2g.html
+2 stronger: https://hobbyking.com/en_us/corona-cs238mg-metal-gear-servo-4-6kg-0-14sec-22g.html
+
+(optional)
+red led
+yellow led
+green led
