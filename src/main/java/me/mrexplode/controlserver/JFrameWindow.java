@@ -21,6 +21,10 @@ import net.java.games.input.Component;
  */
 public class JFrameWindow extends javax.swing.JFrame {
     
+    
+    public static void main(String[] args) {
+        new JFrameWindow();
+    }
     /**
      * Creates new form JFrameWindow
      */
@@ -33,8 +37,6 @@ public class JFrameWindow extends javax.swing.JFrame {
         }
         
         initComponents();
-        
-        this.setResizable(false);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }

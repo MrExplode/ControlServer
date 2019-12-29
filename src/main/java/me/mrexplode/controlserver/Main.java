@@ -35,11 +35,6 @@ public class Main {
     private static String controllerName = "Generic   USB  Joystick";
     
     public static void main(String[] args) {
-        byte[] array = float2byteArray(11.6f);
-        for (int i = 0; i < array.length; i++) {
-            System.out.print(array[i] + " ");
-        }
-        /*
         new ConsoleStarter("ControlServer", new String[] {"-Djava.library.path=\"PATH\""}, "serial", "server", "127.0.0.1", "42069").start();
         System.out.println("Starting up ControlServer...");
         System.out.println("Mode: " + args[1]);
@@ -51,7 +46,7 @@ public class Main {
             new Main(args[1].equals("server"), args[2], Integer.valueOf(args[3])).runSerial();
         } else {
             new Main(args[1].equals("server"), args[2], Integer.valueOf(args[3])).runUDP();
-        }*/
+        }
     }
     public static byte[] floatToByteArray(float value) {
         int intBits =  Float.floatToIntBits(value);
@@ -65,6 +60,8 @@ public class Main {
         this.port = port;
     }
     
+    //we don't use this
+    @Deprecated
     public void runSerial() {
         long timer = 0;
         long statTimer = 0;
