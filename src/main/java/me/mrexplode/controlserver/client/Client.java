@@ -1,5 +1,7 @@
 package me.mrexplode.controlserver.client;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -24,12 +26,20 @@ public class Client implements Runnable {
     private float throttle = 0f;
     private byte[] buffer = new byte[448];
     
+    private State state;
+    
     private boolean running = true;
     
     
     
     public Client() {
-        
+        try {
+			state = new State(Type.CLIENT, InetAddress.getLocalHost().getHostAddress(), 42069);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+        state.state = "Waiting";
+        state.description = "Waiting for server commands";
     }
 
     @Override
@@ -45,6 +55,8 @@ public class Client implements Runnable {
             if (System.currentTimeMillis() > timer + 50) {
                 if (!controller.poll()) {
                     //controller not available, acts as disabled
+                	this.state.state = "No controller";
+                	this.state.description = "Controller either disconnected, or not available";
                     System.out.println("Controller disconnected!");
                     try {
                         Thread.sleep(2000);
@@ -56,6 +68,10 @@ public class Client implements Runnable {
                 }
             }
         }
+    }
+    
+    public State getState() {
+    	return state;
     }
 
 }
